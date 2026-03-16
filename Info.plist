@@ -13,20 +13,26 @@
 <key>CFBundleName</key>
 <string>MineBot</string>
 
+<key>CFBundleDisplayName</key>
+<string>MineBot</string>
+
 <key>CFBundleVersion</key>
 <string>1</string>
 
 <key>CFBundleShortVersionString</key>
 <string>1.0</string>
 
+<key>CFBundlePackageType</key>
+<string>APPL</string>
+
 <key>LSRequiresIPhoneOS</key>
 <true/>
 
-<key>UIApplicationSceneManifest</key>
-<dict>
-<key>UIApplicationSupportsMultipleScenes</key>
-<false/>
-</dict>
+<key>UILaunchScreen</key>
+<dict/>
+
+<key>UIApplicationSupportsIndirectInputEvents</key>
+<true/>
 
 </dict>
 </plist>
