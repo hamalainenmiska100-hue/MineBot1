@@ -1,0 +1,129 @@
+// !$*UTF8*$!
+{
+ archiveVersion = 1;
+ classes = {};
+ objectVersion = 56;
+
+ objects = {
+
+/* Begin PBXFileReference section */
+A1 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>";};
+A2 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddServerView.swift; sourceTree = "<group>";};
+A3 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>";};
+A4 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BotView.swift; sourceTree = "<group>";};
+A5 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonViews.swift; sourceTree = "<group>";};
+A6 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>";};
+A7 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>";};
+A8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>";};
+A9 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MineBotApp.swift; sourceTree = "<group>";};
+A10 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>";};
+A11 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerStore.swift; sourceTree = "<group>";};
+A12 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>";};
+A13 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Snackbar.swift; sourceTree = "<group>";};
+A14 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusView.swift; sourceTree = "<group>";};
+A15 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>";};
+A16 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>";};
+/* End PBXFileReference section */
+
+/* Begin PBXBuildFile section */
+B1 = {isa = PBXBuildFile; fileRef = A1;};
+B2 = {isa = PBXBuildFile; fileRef = A2;};
+B3 = {isa = PBXBuildFile; fileRef = A3;};
+B4 = {isa = PBXBuildFile; fileRef = A4;};
+B5 = {isa = PBXBuildFile; fileRef = A5;};
+B6 = {isa = PBXBuildFile; fileRef = A6;};
+B7 = {isa = PBXBuildFile; fileRef = A7;};
+B8 = {isa = PBXBuildFile; fileRef = A8;};
+B9 = {isa = PBXBuildFile; fileRef = A9;};
+B10 = {isa = PBXBuildFile; fileRef = A10;};
+B11 = {isa = PBXBuildFile; fileRef = A11;};
+B12 = {isa = PBXBuildFile; fileRef = A12;};
+B13 = {isa = PBXBuildFile; fileRef = A13;};
+B14 = {isa = PBXBuildFile; fileRef = A14;};
+B15 = {isa = PBXBuildFile; fileRef = A15;};
+/* End PBXBuildFile section */
+
+/* Begin PBXSourcesBuildPhase section */
+C1 = {
+ isa = PBXSourcesBuildPhase;
+ buildActionMask = 2147483647;
+ files = (
+  B1, B2, B3, B4, B5,
+  B6, B7, B8, B9, B10,
+  B11, B12, B13, B14, B15
+ );
+ runOnlyForDeploymentPostprocessing = 0;
+};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXGroup section */
+D1 = {
+ isa = PBXGroup;
+ children = (
+  A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,
+  A11,A12,A13,A14,A15,A16
+ );
+ sourceTree = "<group>";
+};
+/* End PBXGroup section */
+
+/* Begin XCBuildConfiguration section */
+E1 = {
+ isa = XCBuildConfiguration;
+ buildSettings = {
+  PRODUCT_NAME = MineBot;
+  PRODUCT_BUNDLE_IDENTIFIER = com.minebot.app;
+  INFOPLIST_FILE = Info.plist;
+  IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+  SWIFT_VERSION = 5.0;
+  TARGETED_DEVICE_FAMILY = "1,2";
+ };
+ name = Release;
+};
+
+E2 = {
+ isa = XCBuildConfiguration;
+ buildSettings = {
+  PRODUCT_NAME = MineBot;
+  PRODUCT_BUNDLE_IDENTIFIER = com.minebot.app;
+  INFOPLIST_FILE = Info.plist;
+  IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+  SWIFT_VERSION = 5.0;
+  TARGETED_DEVICE_FAMILY = "1,2";
+ };
+ name = Debug;
+};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+F1 = {
+ isa = XCConfigurationList;
+ buildConfigurations = (E1,E2);
+ defaultConfigurationName = Release;
+};
+/* End XCConfigurationList section */
+
+/* Begin PBXNativeTarget section */
+G1 = {
+ isa = PBXNativeTarget;
+ name = MineBot;
+ productName = MineBot;
+ productType = "com.apple.product-type.application";
+ buildConfigurationList = F1;
+ buildPhases = (C1);
+};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+H1 = {
+ isa = PBXProject;
+ mainGroup = D1;
+ targets = (G1);
+ compatibilityVersion = "Xcode 14.0";
+};
+/* End PBXProject section */
+
+ };
+
+ rootObject = H1;
+}
