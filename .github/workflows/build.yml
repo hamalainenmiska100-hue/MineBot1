@@ -25,7 +25,7 @@ jobs:
           echo "$FILES"
 
           xcrun swiftc \
-            -target arm64-apple-ios16.0 \
+            -target arm64-apple-ios17.0 \
             -sdk "$SDK" \
             -framework SwiftUI \
             -framework UIKit \
