@@ -60,7 +60,7 @@ struct StatusBadge: View {
         case "connected": return .green
         case "reconnecting": return .orange
         case "error": return .red
-        case "starting": return .gray
+        case "starting": return .green
         case "disconnected": return .orange
         default: return .gray
         }
@@ -82,7 +82,7 @@ struct StatusBadge: View {
         switch status.lowercased() {
         case "connected": return "Connected"
         case "reconnecting": return "Reconnecting"
-        case "starting": return "Starting"
+        case "starting": return "Bot Online"
         case "error": return "Error"
         case "disconnected": return "Disconnected"
         default: return "Offline"
