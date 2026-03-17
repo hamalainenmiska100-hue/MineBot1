@@ -113,6 +113,11 @@ final class APIClient {
         try await request(path: "/bots/stop", method: "POST", token: token)
     }
 
+    func logout(token: String) async throws -> BotActionResponse {
+    try await request(path: "/auth/logout", method: "POST", token: token)
+    }
+    
+
     func reconnectBot(token: String) async throws -> BotActionResponse {
         try await request(path: "/bots/reconnect", method: "POST", token: token)
     }
