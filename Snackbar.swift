@@ -41,11 +41,11 @@ struct SnackbarView: View {
     private var accentColor: Color {
         switch snackbar.style {
         case .info:
-            return Color.blue
+            return .blue
         case .success:
-            return Color.green
+            return .green
         case .error:
-            return Color.red
+            return .red
         }
     }
 
@@ -109,7 +109,7 @@ struct SnackbarView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                .stroke(Color.white.opacity(0.05), lineWidth: 1)
         )
         .overlay(alignment: .leading) {
             RoundedRectangle(cornerRadius: 22, style: .continuous)
@@ -117,7 +117,7 @@ struct SnackbarView: View {
                 .frame(width: 4)
                 .padding(.vertical, 1)
         }
-        .shadow(color: .black.opacity(0.24), radius: 18, y: 10)
+        .shadow(color: .black.opacity(0.22), radius: 14, y: 8)
         .offset(y: dragOffset)
         .gesture(
             DragGesture(minimumDistance: 5)
