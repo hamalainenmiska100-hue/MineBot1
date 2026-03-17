@@ -56,18 +56,18 @@ final class AppModel: ObservableObject {
     }
 
     var isBotRunning: Bool {
-    guard let botStatus else { return false }
+        guard let botStatus else { return false }
 
-    if botStatus.connected == true {
-        return true
+        if botStatus.connected == true {
+            return true
+        }
+
+        let status = botStatus.status.lowercased()
+        return status == "connected"
+            || status == "starting"
+            || status == "reconnecting"
+            || status == "disconnected"
     }
-
-    let status = botStatus.status.lowercased()
-    return status == "connected"
-        || status == "starting"
-        || status == "reconnecting"
-        || status == "disconnected"
-}
 
     func completeLogin(with token: String) {
         self.token = token
@@ -76,9 +76,33 @@ final class AppModel: ObservableObject {
         startPolling()
     }
 
-    func logout() {
+    func logout() async {
+        let currentToken = token
+
         statusTimer?.invalidate()
         statusTimer = nil
+
+        if isBusy == false {
+            isBusy = true
+        }
+        defer { isBusy = false }
+
+        if let currentToken {
+            do {
+                _ = try await APIClient.shared.logout(token: currentToken)
+                performLocalLogout()
+                showSnackbar("Signed out.", style: .info)
+            } catch {
+                performLocalLogout()
+                showSnackbar("Signed out locally.", style: .info)
+            }
+        } else {
+            performLocalLogout()
+            showSnackbar("Signed out.", style: .info)
+        }
+    }
+
+    private func performLocalLogout() {
         token = nil
         isLoggedIn = false
         linkedAccounts = []
@@ -88,7 +112,6 @@ final class AppModel: ObservableObject {
         serverLatencyMs = nil
         lastStatusValue = nil
         Keychain.deleteToken()
-        showSnackbar("Signed out.", style: .info)
     }
 
     func login(code: String) async {
