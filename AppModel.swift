@@ -136,23 +136,23 @@ final class AppModel: ObservableObject {
     }
 
     func refreshAll(showTransitionFeedback: Bool = false) async {
-        guard let token else { return }
+    guard token != nil else { return }
 
-        isRefreshingStatus = true
-        defer { isRefreshingStatus = false }
+    isRefreshingStatus = true
+    defer { isRefreshingStatus = false }
 
-        await withTaskGroup(of: Void.self) { group in
-            group.addTask { [weak self] in
-                await self?.refreshBotStatus(showTransitionFeedback: showTransitionFeedback)
-            }
-            group.addTask { [weak self] in
-                await self?.refreshHealth()
-            }
-            group.addTask { [weak self] in
-                await self?.refreshAccounts()
-            }
+    await withTaskGroup(of: Void.self) { group in
+        group.addTask { [weak self] in
+            await self?.refreshBotStatus(showTransitionFeedback: showTransitionFeedback)
+        }
+        group.addTask { [weak self] in
+            await self?.refreshHealth()
+        }
+        group.addTask { [weak self] in
+            await self?.refreshAccounts()
         }
     }
+}
 
     func refreshAccounts() async {
         guard token != nil else { return }
