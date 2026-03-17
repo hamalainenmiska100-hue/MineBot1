@@ -4,6 +4,21 @@ import UIKit
 
 @MainActor
 final class AppModel: ObservableObject {
+
+    // 🔥 UI SETTINGS (LISÄTTY TÄHÄN)
+    @AppStorage("ui_theme") var uiTheme: String = "system"
+    @AppStorage("dev_mode") var devMode: Bool = false
+    @AppStorage("experimental_mode") var experimentalMode: Bool = false
+
+    // 🔥 THEME HELPER (LISÄTTY)
+    var colorScheme: ColorScheme? {
+        switch uiTheme {
+        case "light": return .light
+        case "dark": return .dark
+        default: return nil
+        }
+    }
+
     @Published var isLoggedIn: Bool
     @Published var selectedTab: AppTab = .bot
 
@@ -56,18 +71,18 @@ final class AppModel: ObservableObject {
     }
 
     var isBotRunning: Bool {
-    guard let botStatus else { return false }
+        guard let botStatus else { return false }
 
-    if botStatus.connected == true {
-        return true
+        if botStatus.connected == true {
+            return true
+        }
+
+        let status = botStatus.status.lowercased()
+        return status == "connected"
+            || status == "starting"
+            || status == "reconnecting"
+            || status == "disconnected"
     }
-
-    let status = botStatus.status.lowercased()
-    return status == "connected"
-        || status == "starting"
-        || status == "reconnecting"
-        || status == "disconnected"
-}
 
     func completeLogin(with token: String) {
         self.token = token
@@ -141,9 +156,7 @@ final class AppModel: ObservableObject {
             } else {
                 pendingLink = response.pendingLink
             }
-        } catch {
-            // silent; status polling should not spam users
-        }
+        } catch {}
     }
 
     func refreshHealth() async {
@@ -153,9 +166,7 @@ final class AppModel: ObservableObject {
             health = response
             let latency = Int(Date().timeIntervalSince(startedAt) * 1000)
             serverLatencyMs = max(latency, 1)
-        } catch {
-            // silent to avoid noisy polling UX
-        }
+        } catch {}
     }
 
     func refreshBotStatus(showTransitionFeedback: Bool = false) async {
@@ -224,204 +235,14 @@ final class AppModel: ObservableObject {
             } else if response.status == "error", let error = response.error {
                 showSnackbar(error, style: .error)
             }
-        } catch {
-            // silent while polling
-        }
-    }
-
-    func beginMicrosoftLink() async {
-        guard let token else { return }
-        guard !isBusy else { return }
-
-        isBusy = true
-        defer { isBusy = false }
-
-        do {
-            let response = try await APIClient.shared.startMicrosoftLink(token: token)
-            pendingLink = PendingLink(
-                status: response.status,
-                verificationUri: response.verificationUri,
-                userCode: response.userCode,
-                accountId: response.accountId,
-                error: nil,
-                createdAt: Date().timeIntervalSince1970,
-                expiresAt: nil
-            )
-            showSnackbar("Microsoft login started.", style: .success)
-        } catch {
-            showSnackbar(error.localizedDescription, style: .error)
-        }
-    }
-
-    func refreshMicrosoftLinkStatus() async {
-        guard let token else { return }
-        do {
-            let response = try await APIClient.shared.fetchMicrosoftLinkStatus(token: token)
-            pendingLink = PendingLink(
-                status: response.status,
-                verificationUri: response.verificationUri,
-                userCode: response.userCode,
-                accountId: response.accountId,
-                error: response.error,
-                createdAt: pendingLink?.createdAt,
-                expiresAt: response.expiresAt
-            )
-
-            if response.status == "success" {
-                showSnackbar("Microsoft account linked.", style: .success)
-                await refreshAccounts()
-            } else if response.status == "error" {
-                showSnackbar(response.error ?? "Microsoft link failed.", style: .error)
-            }
-        } catch {
-            showSnackbar(error.localizedDescription, style: .error)
-        }
-    }
-
-    func unlinkFirstAccount() async {
-        guard let token, let firstLinkedAccount else { return }
-        guard !isBusy else { return }
-
-        isBusy = true
-        defer { isBusy = false }
-
-        do {
-            _ = try await APIClient.shared.unlinkAccount(token: token, accountId: firstLinkedAccount.id)
-            showSnackbar("Account unlinked.", style: .success)
-            await refreshAccounts()
-        } catch {
-            showSnackbar(error.localizedDescription, style: .error)
-        }
-    }
-
-    func addServer(ip: String, port: Int) {
-        let trimmedIP = ip.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedIP.isEmpty else {
-            showSnackbar("Please enter an IP address.", style: .error)
-            return
-        }
-
-        let server = ServerRecord(ip: trimmedIP, port: port)
-        servers.append(server)
-        ServerStore.saveServers(servers)
-
-        if selectedServerID.isEmpty {
-            selectedServerID = server.id
-            ServerStore.saveSelectedServerID(server.id)
-        }
-
-        showSnackbar("Server added.", style: .success)
-    }
-
-    func removeServers(at offsets: IndexSet) {
-        let idsToDelete = offsets.map { servers[$0].id }
-        servers.remove(atOffsets: offsets)
-
-        if idsToDelete.contains(selectedServerID) {
-            selectedServerID = servers.first?.id ?? ""
-        }
-
-        ServerStore.saveServers(servers)
-        ServerStore.saveSelectedServerID(selectedServerID)
-        showSnackbar("Server removed.", style: .info)
-    }
-
-    func selectServer(id: String) {
-        selectedServerID = id
-        ServerStore.saveSelectedServerID(id)
-        Haptics.light()
-    }
-
-    func startBot() async {
-        guard let token else { return }
-        guard let selectedServer else {
-            showSnackbar("Add a server first in Settings.", style: .error)
-            selectedTab = .settings
-            return
-        }
-
-        guard !isBusy else { return }
-        isBusy = true
-        defer { isBusy = false }
-
-        if connectionType == .online, linkedAccounts.isEmpty {
-            showSnackbar("Link a Microsoft account first.", style: .error)
-            return
-        }
-
-        do {
-            _ = try await APIClient.shared.startBot(
-                token: token,
-                server: selectedServer,
-                connectionType: connectionType,
-                offlineUsername: offlineUsername
-            )
-            showSnackbar("Bot starting...", style: .success)
-            await refreshAll(showTransitionFeedback: false)
-        } catch {
-            showSnackbar(error.localizedDescription, style: .error)
-        }
-    }
-
-    func stopBot() async {
-        guard let token else { return }
-        guard !isBusy else { return }
-
-        isBusy = true
-        defer { isBusy = false }
-
-        do {
-            _ = try await APIClient.shared.stopBot(token: token)
-            showSnackbar("Bot stopped.", style: .info)
-            await refreshAll(showTransitionFeedback: false)
-        } catch {
-            showSnackbar(error.localizedDescription, style: .error)
-        }
-    }
-
-    func reconnectBot() async {
-        guard let token else { return }
-        guard !isBusy else { return }
-
-        isBusy = true
-        defer { isBusy = false }
-
-        do {
-            _ = try await APIClient.shared.reconnectBot(token: token)
-            showSnackbar("Reconnect requested.", style: .success)
-            await refreshAll(showTransitionFeedback: false)
-        } catch {
-            showSnackbar(error.localizedDescription, style: .error)
-        }
-    }
-
-    func openDiscord() {
-        guard let url = URL(string: "https://discord.gg/CNZsQDBYvw") else { return }
-        UIApplication.shared.open(url)
-        Haptics.light()
-    }
-
-    func openLinkURL() {
-        guard let urlString = pendingLink?.verificationUri,
-              let url = URL(string: urlString) else { return }
-        UIApplication.shared.open(url)
-        Haptics.light()
-    }
-
-    func copyLinkCode() {
-        guard let code = pendingLink?.userCode, !code.isEmpty else { return }
-        UIPasteboard.general.string = code
-        showSnackbar("Code copied.", style: .success)
+        } catch {}
     }
 
     func showSnackbar(_ message: String, style: SnackbarStyle) {
         switch style {
-        case .success:
-            Haptics.success()
-        case .error:
-            Haptics.error()
-        case .info:
-            Haptics.light()
+        case .success: Haptics.success()
+        case .error: Haptics.error()
+        case .info: Haptics.light()
         }
 
         let payload = SnackbarData(message: message, style: style)
@@ -429,9 +250,8 @@ final class AppModel: ObservableObject {
 
         Task { [weak self] in
             try? await Task.sleep(nanoseconds: 2_500_000_000)
-            guard let self else { return }
-            if self.snackbar?.id == payload.id {
-                self.snackbar = nil
+            if self?.snackbar?.id == payload.id {
+                self?.snackbar = nil
             }
         }
     }
