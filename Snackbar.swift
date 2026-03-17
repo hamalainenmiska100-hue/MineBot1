@@ -11,7 +11,7 @@ struct SnackbarHost: View {
                 SnackbarView(
                     snackbar: snackbar,
                     onDismiss: {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.86)) {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.88)) {
                             appModel.snackbar = nil
                         }
                     }
@@ -28,8 +28,7 @@ struct SnackbarHost: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .animation(.spring(response: 0.32, dampingFraction: 0.88), value: appModel.snackbar?.id)
-        .allowsHitTesting(false)
+        .animation(.spring(response: 0.32, dampingFraction: 0.9), value: appModel.snackbar?.id)
     }
 }
 
@@ -42,11 +41,11 @@ struct SnackbarView: View {
     private var accentColor: Color {
         switch snackbar.style {
         case .info:
-            return .blue
+            return Color.blue
         case .success:
-            return .green
+            return Color.green
         case .error:
-            return .red
+            return Color.red
         }
     }
 
@@ -73,22 +72,20 @@ struct SnackbarView: View {
     }
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
-
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
             Image(systemName: iconName)
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(accentColor)
-                .frame(width: 24)
+                .frame(width: 22, height: 22)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(titleText)
-                    .font(.caption.weight(.semibold))
+                    .font(.caption.weight(.bold))
                     .foregroundStyle(accentColor)
 
                 Text(snackbar.message)
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.primary)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(.white)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -97,33 +94,30 @@ struct SnackbarView: View {
 
             Button(action: onDismiss) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 24, height: 24)
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(Color.white.opacity(0.5))
+                    .frame(width: 28, height: 28)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
         .background(
-            ZStack(alignment: .leading) {
-                shape
-                    .fill(.ultraThinMaterial)
-
-                shape
-                    .fill(Color.white.opacity(0.03))
-
-                Rectangle()
-                    .fill(accentColor)
-                    .frame(width: 4)
-                    .clipShape(shape)
-
-                shape
-                    .stroke(accentColor.opacity(0.18), lineWidth: 1)
-            }
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Color(red: 0.14, green: 0.14, blue: 0.16))
         )
-        .clipShape(shape)
-        .shadow(color: .black.opacity(0.16), radius: 14, y: 8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(Color.white.opacity(0.06), lineWidth: 1)
+        )
+        .overlay(alignment: .leading) {
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(accentColor)
+                .frame(width: 4)
+                .padding(.vertical, 1)
+        }
+        .shadow(color: .black.opacity(0.24), radius: 18, y: 10)
         .offset(y: dragOffset)
         .gesture(
             DragGesture(minimumDistance: 5)
@@ -131,7 +125,7 @@ struct SnackbarView: View {
                     dragOffset = max(0, value.translation.height)
                 }
                 .onEnded { value in
-                    if value.translation.height > 50 {
+                    if value.translation.height > 55 {
                         onDismiss()
                     } else {
                         withAnimation(.spring(response: 0.25, dampingFraction: 0.85)) {
@@ -140,7 +134,6 @@ struct SnackbarView: View {
                     }
                 }
         )
-        .allowsHitTesting(true)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(titleText). \(snackbar.message)")
     }
