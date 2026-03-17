@@ -6,64 +6,148 @@ struct TutorialView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("MineBot")
-                            .font(.system(size: 34, weight: .bold))
-                        Text("Welcome.")
-                            .font(.title3.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                    }
-
-                    CardView {
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("This app lets you run a Minecraft AFK bot remotely from your phone.")
-                                .font(.body)
-
-                            VStack(alignment: .leading, spacing: 12) {
-                                TutorialRow(number: "1", text: "Enter your access code")
-                                TutorialRow(number: "2", text: "Link your Microsoft account")
-                                TutorialRow(number: "3", text: "Start your bot")
-                            }
-
-                            Text("Your bot will stay online even when the app is closed.")
-                                .font(.body)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
+                VStack(spacing: 18) {
+                    heroCard
+                    stepsCard
+                    footerCard
 
                     Button {
                         Haptics.light()
                         onContinue()
                     } label: {
-                        Text("Continue")
-                            .frame(maxWidth: .infinity)
+                        HStack(spacing: 10) {
+                            Text("Continue")
+                                .fontWeight(.semibold)
+                            Image(systemName: "arrow.right")
+                                .font(.subheadline.weight(.bold))
+                        }
+                        .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(PrimaryButtonStyle(color: .blue))
                 }
-                .frame(maxWidth: 500)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 24)
+                .frame(maxWidth: 520)
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, 28)
             }
             .navigationBarTitleDisplayMode(.inline)
         }
     }
+
+    private var heroCard: some View {
+        CardView {
+            VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("MineBot")
+                        .font(.system(size: 34, weight: .bold, design: .rounded))
+
+                    Text("Remote control for your Minecraft AFK bot.")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.primary)
+
+                    Text("Everything important in one place — connect, monitor, and manage your bot from your phone.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                HStack(spacing: 10) {
+                    TutorialPill(title: "Fast setup")
+                    TutorialPill(title: "Remote control")
+                    TutorialPill(title: "Runs in background")
+                }
+            }
+        }
+    }
+
+    private var stepsCard: some View {
+        CardView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("How it works")
+                    .font(.headline)
+
+                VStack(spacing: 14) {
+                    TutorialStepRow(
+                        number: "1",
+                        title: "Enter your access code",
+                        subtitle: "Use the code you received to sign in and unlock access."
+                    )
+
+                    TutorialStepRow(
+                        number: "2",
+                        title: "Link your Microsoft account",
+                        subtitle: "Connect your account so the bot can join online servers."
+                    )
+
+                    TutorialStepRow(
+                        number: "3",
+                        title: "Choose a server and start",
+                        subtitle: "Pick your saved server, select the connection type, and launch the bot."
+                    )
+                }
+            }
+        }
+    }
+
+    private var footerCard: some View {
+        CardView {
+            VStack(alignment: .leading, spacing: 12) {
+                Label("Good to know", systemImage: "info.circle")
+                    .font(.headline)
+
+                Text("Your bot can stay online even after you close the app. You can reopen MineBot anytime to check status, reconnect, or stop it.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
 }
 
-private struct TutorialRow: View {
+private struct TutorialStepRow: View {
     let number: String
-    let text: String
+    let title: String
+    let subtitle: String
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Text(number)
-                .font(.headline)
-                .frame(width: 24, height: 24)
-                .background(Color.blue.opacity(0.12))
-                .clipShape(Circle())
-            Text(text)
-                .font(.body)
-                .frame(maxWidth: .infinity, alignment: .leading)
+        HStack(alignment: .top, spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(Color.blue.opacity(0.12))
+                    .frame(width: 34, height: 34)
+
+                Text(number)
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.blue)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+
+                Text(subtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct TutorialPill: View {
+    let title: String
+
+    var body: some View {
+        Text(title)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .background(Color.primary.opacity(0.06))
+            .clipShape(Capsule())
     }
 }
