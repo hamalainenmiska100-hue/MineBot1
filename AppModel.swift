@@ -77,12 +77,12 @@ final class AppModel: ObservableObject {
     }
 
     func logout() async {
-        let currentToken = token
-
         statusTimer?.invalidate()
         statusTimer = nil
 
-        if isBusy == false {
+        let currentToken = token
+
+        if !isBusy {
             isBusy = true
         }
         defer { isBusy = false }
@@ -90,16 +90,13 @@ final class AppModel: ObservableObject {
         if let currentToken {
             do {
                 _ = try await APIClient.shared.logout(token: currentToken)
-                performLocalLogout()
-                showSnackbar("Signed out.", style: .info)
             } catch {
-                performLocalLogout()
-                showSnackbar("Signed out locally.", style: .info)
+                // Even if backend logout fails, continue local sign-out.
             }
-        } else {
-            performLocalLogout()
-            showSnackbar("Signed out.", style: .info)
         }
+
+        performLocalLogout()
+        showSnackbar("Signed out.", style: .info)
     }
 
     private func performLocalLogout() {
@@ -136,30 +133,32 @@ final class AppModel: ObservableObject {
     }
 
     func refreshAll(showTransitionFeedback: Bool = false) async {
-    guard token != nil else { return }
+        guard token != nil else { return }
 
-    isRefreshingStatus = true
-    defer { isRefreshingStatus = false }
+        isRefreshingStatus = true
+        defer { isRefreshingStatus = false }
 
-    await withTaskGroup(of: Void.self) { group in
-        group.addTask { [weak self] in
-            await self?.refreshBotStatus(showTransitionFeedback: showTransitionFeedback)
-        }
-        group.addTask { [weak self] in
-            await self?.refreshHealth()
-        }
-        group.addTask { [weak self] in
-            await self?.refreshAccounts()
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { [weak self] in
+                await self?.refreshBotStatus(showTransitionFeedback: showTransitionFeedback)
+            }
+            group.addTask { [weak self] in
+                await self?.refreshHealth()
+            }
+            group.addTask { [weak self] in
+                await self?.refreshAccounts()
+            }
         }
     }
-}
 
     func refreshAccounts() async {
-        guard token != nil else { return }
+        guard let token = self.token else { return }
         do {
             let response = try await APIClient.shared.fetchAccounts(token: token)
             linkedAccounts = response.linked
-            if let pending = response.pendingLink, pending.status.lowercased() == "success", response.linked.isEmpty == false {
+            if let pending = response.pendingLink,
+               pending.status.lowercased() == "success",
+               response.linked.isEmpty == false {
                 pendingLink = nil
             } else {
                 pendingLink = response.pendingLink
@@ -182,7 +181,7 @@ final class AppModel: ObservableObject {
     }
 
     func refreshBotStatus(showTransitionFeedback: Bool = false) async {
-        guard let token else { return }
+        guard let token = self.token else { return }
         do {
             let response = try await APIClient.shared.fetchBotStatus(token: token)
             let previous = lastStatusValue
@@ -225,7 +224,7 @@ final class AppModel: ObservableObject {
     }
 
     func refreshPendingLinkIfNeeded() async {
-        guard let token else { return }
+        guard let token = self.token else { return }
         guard let pendingLink else { return }
         guard pendingLink.status == "starting" || pendingLink.status == "pending" else { return }
 
@@ -253,7 +252,7 @@ final class AppModel: ObservableObject {
     }
 
     func beginMicrosoftLink() async {
-        guard let token else { return }
+        guard let token = self.token else { return }
         guard !isBusy else { return }
 
         isBusy = true
@@ -277,7 +276,7 @@ final class AppModel: ObservableObject {
     }
 
     func refreshMicrosoftLinkStatus() async {
-        guard let token else { return }
+        guard let token = self.token else { return }
         do {
             let response = try await APIClient.shared.fetchMicrosoftLinkStatus(token: token)
             pendingLink = PendingLink(
@@ -302,7 +301,7 @@ final class AppModel: ObservableObject {
     }
 
     func unlinkFirstAccount() async {
-        guard let token, let firstLinkedAccount else { return }
+        guard let token = self.token, let firstLinkedAccount else { return }
         guard !isBusy else { return }
 
         isBusy = true
@@ -356,7 +355,7 @@ final class AppModel: ObservableObject {
     }
 
     func startBot() async {
-        guard let token else { return }
+        guard let token = self.token else { return }
         guard let selectedServer else {
             showSnackbar("Add a server first in Settings.", style: .error)
             selectedTab = .settings
@@ -387,7 +386,7 @@ final class AppModel: ObservableObject {
     }
 
     func stopBot() async {
-        guard let token else { return }
+        guard let token = self.token else { return }
         guard !isBusy else { return }
 
         isBusy = true
@@ -403,7 +402,7 @@ final class AppModel: ObservableObject {
     }
 
     func reconnectBot() async {
-        guard let token else { return }
+        guard let token = self.token else { return }
         guard !isBusy else { return }
 
         isBusy = true
