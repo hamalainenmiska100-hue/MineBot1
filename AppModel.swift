@@ -56,9 +56,18 @@ final class AppModel: ObservableObject {
     }
 
     var isBotRunning: Bool {
-        guard let status = botStatus?.status.lowercased() else { return false }
-        return status == "connected" || status == "Bot Online" || status == "reconnecting" || status == "disconnected"
+    guard let botStatus else { return false }
+
+    if botStatus.connected == true {
+        return true
     }
+
+    let status = botStatus.status.lowercased()
+    return status == "connected"
+        || status == "starting"
+        || status == "reconnecting"
+        || status == "disconnected"
+}
 
     func completeLogin(with token: String) {
         self.token = token
