@@ -58,7 +58,7 @@ struct StatusBadge: View {
     private var color: Color {
         switch status.lowercased() {
         case "connected": return .green
-        case "reconnecting": return .orange
+        case "reconnecting": return .green
         case "error": return .red
         case "starting": return .green
         case "disconnected": return .orange
@@ -81,7 +81,7 @@ struct StatusBadge: View {
     private var label: String {
         switch status.lowercased() {
         case "connected": return "Connected"
-        case "reconnecting": return "Reconnecting"
+        case "reconnecting": return "Connected"
         case "starting": return "Bot Online"
         case "error": return "Error"
         case "disconnected": return "Disconnected"
