@@ -155,7 +155,7 @@ final class AppModel: ObservableObject {
     }
 
     func refreshAccounts() async {
-        guard let token else { return }
+        guard token != nil else { return }
         do {
             let response = try await APIClient.shared.fetchAccounts(token: token)
             linkedAccounts = response.linked
