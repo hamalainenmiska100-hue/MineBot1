@@ -38,6 +38,8 @@ struct SnackbarView: View {
 
     @State private var dragOffset: CGFloat = 0
 
+    private let cornerRadius: CGFloat = 22
+
     private var accentColor: Color {
         switch snackbar.style {
         case .info:
@@ -104,18 +106,15 @@ struct SnackbarView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
         .background(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(Color(red: 0.14, green: 0.14, blue: 0.16))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(Color.white.opacity(0.05), lineWidth: 1)
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .stroke(Color.white.opacity(0.03), lineWidth: 0.8)
         )
         .overlay(alignment: .leading) {
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(accentColor)
-                .frame(width: 4)
-                .padding(.vertical, 1)
+            LeftAccentBar(color: accentColor, cornerRadius: cornerRadius)
         }
         .shadow(color: .black.opacity(0.22), radius: 14, y: 8)
         .offset(y: dragOffset)
@@ -136,5 +135,52 @@ struct SnackbarView: View {
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(titleText). \(snackbar.message)")
+    }
+}
+
+private struct LeftAccentBar: View {
+    let color: Color
+    let cornerRadius: CGFloat
+
+    var body: some View {
+        GeometryReader { proxy in
+            color
+                .frame(width: 4, height: proxy.size.height)
+                .clipShape(LeftBarShape(cornerRadius: cornerRadius))
+        }
+        .frame(width: 4)
+    }
+}
+
+private struct LeftBarShape: Shape {
+    let cornerRadius: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+
+        let r = min(cornerRadius, rect.height / 2, rect.width)
+
+        path.move(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.minX + r, y: rect.minY))
+        path.addArc(
+            center: CGPoint(x: rect.minX + r, y: rect.minY + r),
+            radius: r,
+            startAngle: .degrees(-90),
+            endAngle: .degrees(-180),
+            clockwise: true
+        )
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY - r))
+        path.addArc(
+            center: CGPoint(x: rect.minX + r, y: rect.maxY - r),
+            radius: r,
+            startAngle: .degrees(180),
+            endAngle: .degrees(90),
+            clockwise: true
+        )
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.closeSubpath()
+
+        return path
     }
 }
