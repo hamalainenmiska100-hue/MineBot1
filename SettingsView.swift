@@ -48,12 +48,13 @@ struct SettingsView: View {
             }
 
             Section("Session") {
-                Button("Sign Out") {
-                    appModel.logout()
-                }
-                .foregroundStyle(.red)
-            }
+    Button("Sign Out") {
+        Task {
+            await appModel.logout()
         }
+    }
+    .foregroundStyle(.red)
+}
         .navigationTitle("Settings")
         .sheet(isPresented: $showingAddServer) {
             AddServerView()
