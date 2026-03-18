@@ -4,21 +4,22 @@ struct BotView: View {
     @EnvironmentObject var appModel: AppModel
 
     private let actionColumns = [
-        GridItem(.flexible(), spacing: 8),
-        GridItem(.flexible(), spacing: 8)
+        GridItem(.flexible(), spacing: 10),
+        GridItem(.flexible(), spacing: 10)
     ]
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 10) {
+            VStack(spacing: 14) {
                 summaryCard
                 controlsCard
                 accountCard
                 actionCard
             }
             .frame(maxWidth: 520)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.bottom, 28)
         }
         .navigationTitle("Bot")
         .task {
@@ -29,19 +30,16 @@ struct BotView: View {
         }
     }
 
-    // MARK: - SUMMARY
-
     private var summaryCard: some View {
         CardView {
-            VStack(alignment: .leading, spacing: 10) {
-
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .center) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text("Bot")
                             .font(.headline)
 
                         Text(statusSubtitle)
-                            .font(.caption)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
 
@@ -50,121 +48,156 @@ struct BotView: View {
                     StatusBadge(status: appModel.botStatus?.status ?? "offline")
                 }
 
-                Divider().opacity(0.1)
+                Divider()
+                    .overlay(Color.white.opacity(0.06))
 
-                LazyVGrid(columns: actionColumns, spacing: 8) {
-                    summaryMetric("Server", appModel.botStatus?.server ?? appModel.selectedServer?.label ?? "Not selected")
-                    summaryMetric("Uptime", formattedUptime(appModel.botStatus?.uptimeMs))
-                    summaryMetric("Connection", appModel.connectionType.title)
-                    summaryMetric("Latency", appModel.serverLatencyMs.map { "\($0) ms" } ?? "-")
+                LazyVGrid(columns: actionColumns, alignment: .leading, spacing: 12) {
+                    summaryMetric(
+                        title: "Server",
+                        value: appModel.botStatus?.server ?? appModel.selectedServer?.label ?? "Not selected"
+                    )
+
+                    summaryMetric(
+                        title: "Uptime",
+                        value: formattedUptime(appModel.botStatus?.uptimeMs)
+                    )
+
+                    summaryMetric(
+                        title: "Connection",
+                        value: appModel.connectionType.title
+                    )
+
+                    summaryMetric(
+                        title: "Latency",
+                        value: appModel.serverLatencyMs.map { "\($0) ms" } ?? "-"
+                    )
                 }
             }
         }
     }
 
-    // MARK: - CONTROLS
-
     private var controlsCard: some View {
         CardView {
-            VStack(alignment: .leading, spacing: 10) {
-
+            VStack(alignment: .leading, spacing: 14) {
                 HStack {
                     Text("Server")
                         .font(.headline)
 
                     Spacer()
 
-                    if !appModel.servers.isEmpty {
-                        Text("\(appModel.servers.count)")
-                            .font(.caption)
+                    if appModel.servers.isEmpty == false {
+                        Text("\(appModel.servers.count) saved")
+                            .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
                 }
 
                 if appModel.servers.isEmpty {
-                    Text("No servers")
+                    Text("No saved servers yet.")
                         .foregroundStyle(.secondary)
 
-                    Button("Settings") {
+                    Button("Open Settings") {
                         appModel.selectedTab = .settings
                     }
                     .buttonStyle(SecondaryButtonStyle(color: .blue))
-
                 } else {
-                    Picker("Server", selection: Binding(
-                        get: { appModel.selectedServerID },
-                        set: { appModel.selectServer(id: $0) }
-                    )) {
-                        ForEach(appModel.servers) { server in
-                            Text(server.label).tag(server.id)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .disabled(appModel.isBotRunning)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Selected Server")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
 
-                    VStack(spacing: 6) {
-                        compactRow("IP", appModel.selectedServer?.ip ?? "-")
+                        Picker("Saved Server", selection: Binding(
+                            get: { appModel.selectedServerID },
+                            set: { appModel.selectServer(id: $0) }
+                        )) {
+                            ForEach(appModel.servers) { server in
+                                Text(server.label).tag(server.id)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .disabled(appModel.isBotRunning)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 14)
+                        .background(Color(.systemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    }
+
+                    VStack(spacing: 10) {
+                        compactRow("IP Address", appModel.selectedServer?.ip ?? "-")
                         compactRow("Port", appModel.selectedServer.map { String($0.port) } ?? "-")
                     }
 
-                    Picker("Connection", selection: $appModel.connectionType) {
-                        ForEach(ConnectionType.allCases) { type in
-                            Text(type.title).tag(type)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Connection Type")
+                            .font(.subheadline.weight(.semibold))
+
+                        Picker("Connection Type", selection: $appModel.connectionType) {
+                            ForEach(ConnectionType.allCases) { type in
+                                Text(type.title).tag(type)
+                            }
                         }
+                        .pickerStyle(.segmented)
+                        .disabled(appModel.isBotRunning)
                     }
-                    .pickerStyle(.segmented)
-                    .disabled(appModel.isBotRunning)
 
                     if appModel.connectionType == .offline {
-                        TextField("Username", text: $appModel.offlineUsername)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled(true)
-                            .padding(10)
-                            .background(Color(.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Offline Username")
+                                .font(.subheadline.weight(.semibold))
+
+                            TextField("Steve", text: $appModel.offlineUsername)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled(true)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 14)
+                                .background(Color(.systemBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .disabled(appModel.isBotRunning)
+                        }
                     }
                 }
             }
         }
     }
 
-    // MARK: - ACCOUNT
-
     private var accountCard: some View {
         CardView {
-            VStack(alignment: .leading, spacing: 10) {
-
-                Text("Account")
+            VStack(alignment: .leading, spacing: 14) {
+                Text("Microsoft Account")
                     .font(.headline)
 
                 if let pending = appModel.pendingLink,
-                   ["starting","pending","error"].contains(pending.status) {
+                   pending.status == "starting" || pending.status == "pending" || pending.status == "error" {
 
                     compactRow("Status", pending.status.capitalized)
 
-                    if let code = pending.userCode, !code.isEmpty {
-                        compactRow("Code", code)
+                    if let userCode = pending.userCode, !userCode.isEmpty {
+                        compactRow("Code", userCode)
                     }
 
-                    if pending.status != "error" {
-                        LazyVGrid(columns: actionColumns, spacing: 8) {
-                            Button("Open") { appModel.openLinkURL() }
-                                .buttonStyle(PrimaryButtonStyle(color: .blue))
+                    if pending.status == "pending" || pending.status == "starting" {
+                        LazyVGrid(columns: actionColumns, spacing: 10) {
+                            Button("Open Link") {
+                                appModel.openLinkURL()
+                            }
+                            .buttonStyle(PrimaryButtonStyle(color: .blue))
 
-                            Button("Copy") { appModel.copyLinkCode() }
-                                .buttonStyle(SecondaryButtonStyle(color: .blue))
+                            Button("Copy Code") {
+                                appModel.copyLinkCode()
+                            }
+                            .buttonStyle(SecondaryButtonStyle(color: .blue))
                         }
 
-                        Button("Refresh") {
+                        Button("Refresh Link Status") {
                             Task { await appModel.refreshMicrosoftLinkStatus() }
                         }
                         .buttonStyle(SecondaryButtonStyle(color: .blue))
-
                     } else {
-                        Text(pending.error ?? "Failed")
+                        Text(pending.error ?? "Link failed.")
+                            .font(.subheadline)
                             .foregroundStyle(.red)
 
-                        Button("Retry") {
+                        Button("Try Again") {
                             Task { await appModel.beginMicrosoftLink() }
                         }
                         .buttonStyle(PrimaryButtonStyle(color: .blue))
@@ -173,16 +206,15 @@ struct BotView: View {
                 } else if let account = appModel.firstLinkedAccount {
                     compactRow("Linked", account.label)
 
-                    Button("Unlink") {
+                    Button("Unlink Account") {
                         Task { await appModel.unlinkFirstAccount() }
                     }
                     .buttonStyle(SecondaryButtonStyle(color: .blue))
-
                 } else {
-                    Text("No account")
+                    Text("No linked Microsoft account.")
                         .foregroundStyle(.secondary)
 
-                    Button("Link Account") {
+                    Button("Link Microsoft Account") {
                         Task { await appModel.beginMicrosoftLink() }
                     }
                     .buttonStyle(PrimaryButtonStyle(color: .blue))
@@ -191,96 +223,127 @@ struct BotView: View {
         }
     }
 
-    // MARK: - ACTIONS
-
     private var actionCard: some View {
         CardView {
-            VStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                    Text("Actions")
+                        .font(.headline)
+
+                    Spacer()
+
+                    if appModel.isBusy {
+                        Text("Working...")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                }
 
                 if appModel.isBotRunning {
                     Button("Stop Bot") {
                         Task { await appModel.stopBot() }
                     }
                     .buttonStyle(PrimaryButtonStyle(color: .red))
+                    .disabled(appModel.isBusy)
 
-                    LazyVGrid(columns: actionColumns, spacing: 8) {
+                    LazyVGrid(columns: actionColumns, spacing: 10) {
                         Button("Reconnect") {
                             Task { await appModel.reconnectBot() }
                         }
                         .buttonStyle(SecondaryButtonStyle(color: .blue))
+                        .disabled(appModel.isBusy)
 
                         Button("Refresh") {
                             Task { await appModel.refreshAll(showTransitionFeedback: false) }
                         }
                         .buttonStyle(SecondaryButtonStyle(color: .blue))
+                        .disabled(appModel.isBusy)
                     }
-
                 } else {
-                    Button("Start Bot") {
+                    Button(appModel.isBusy ? "Working..." : "Start Bot") {
                         Task { await appModel.startBot() }
                     }
                     .buttonStyle(PrimaryButtonStyle(color: .green))
+                    .disabled(appModel.isBusy)
 
-                    LazyVGrid(columns: actionColumns, spacing: 8) {
+                    LazyVGrid(columns: actionColumns, spacing: 10) {
                         Button("Refresh") {
                             Task { await appModel.refreshAll(showTransitionFeedback: false) }
                         }
                         .buttonStyle(SecondaryButtonStyle(color: .blue))
+                        .disabled(appModel.isBusy)
 
                         Button("Settings") {
                             appModel.selectedTab = .settings
                         }
                         .buttonStyle(SecondaryButtonStyle(color: .blue))
+                        .disabled(appModel.isBusy)
                     }
                 }
             }
         }
     }
 
-    // MARK: - SMALL COMPONENTS
-
-    private func summaryMetric(_ title: String, _ value: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
+    private func summaryMetric(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
             Text(title)
-                .font(.caption2)
+                .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
 
             Text(value)
                 .font(.subheadline.weight(.semibold))
                 .lineLimit(2)
+                .multilineTextAlignment(.leading)
         }
-        .padding(8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private func compactRow(_ title: String, _ value: String) -> some View {
-        HStack {
+        HStack(alignment: .top, spacing: 10) {
             Text(title)
                 .foregroundStyle(.secondary)
 
-            Spacer()
+            Spacer(minLength: 10)
 
             Text(value)
+                .multilineTextAlignment(.trailing)
         }
-        .font(.caption)
+        .font(.subheadline)
     }
 
     private var statusSubtitle: String {
-        switch appModel.botStatus?.status.lowercased() {
-        case "connected": return "Bot is active"
-        case "starting": return "Joining server..."
-        case "reconnecting": return "Bot Online"
-        case "error": return appModel.botStatus?.lastError ?? "Error occurred"
-        default: return "Ready"
+        let status = appModel.botStatus?.status.lowercased() ?? "offline"
+
+        switch status {
+        case "connected":
+            return "Your bot is currently active."
+        case "starting":
+            return "The bot is still joining the server."
+        case "reconnecting":
+            return "Bot online"
+        case "error":
+            return appModel.botStatus?.lastError ?? "The bot ran into an error."
+        default:
+            return "Ready to start a new session."
         }
     }
 
     private func formattedUptime(_ uptimeMs: TimeInterval?) -> String {
         guard let uptimeMs else { return "-" }
-        let s = Int(uptimeMs / 1000)
-        return s >= 3600 ? "\(s/3600)h \(s%3600/60)m"
-             : s >= 60 ? "\(s/60)m \(s%60)s"
-             : "\(s)s"
+        let totalSeconds = Int(uptimeMs / 1000)
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        let seconds = totalSeconds % 60
+
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        }
+        if minutes > 0 {
+            return "\(minutes)m \(seconds)s"
+        }
+        return "\(seconds)s"
     }
 }
