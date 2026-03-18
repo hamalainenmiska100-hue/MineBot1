@@ -184,7 +184,7 @@ struct StatusView: View {
         case "starting":
             return "Bot is starting"
         case "reconnecting":
-            return "Bot is reconnecting"
+            return "Bot is online"
         case "error":
             return "Bot error"
         case "disconnected":
@@ -203,7 +203,7 @@ struct StatusView: View {
         case "starting":
             return "The bot is still joining the server."
         case "reconnecting":
-            return "Trying to restore the connection."
+            return "Bot online"
         case "error":
             return appModel.botStatus?.lastError ?? "Something went wrong."
         case "disconnected":
