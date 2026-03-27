@@ -1,5 +1,32 @@
 import SwiftUI
 
+struct AppGradientBackground: View {
+    var body: some View {
+        LinearGradient(
+            colors: [
+                Color(red: 0.08, green: 0.13, blue: 0.27),
+                Color(red: 0.10, green: 0.20, blue: 0.42),
+                Color(red: 0.05, green: 0.08, blue: 0.15)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+        .overlay(
+            RadialGradient(
+                colors: [
+                    Color.blue.opacity(0.32),
+                    .clear
+                ],
+                center: .topTrailing,
+                startRadius: 30,
+                endRadius: 340
+            )
+            .ignoresSafeArea()
+        )
+    }
+}
+
 struct CardView<Content: View>: View {
     @ViewBuilder let content: Content
 
@@ -9,8 +36,47 @@ struct CardView<Content: View>: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemBackground))
+        .background(Color(.secondarySystemBackground).opacity(0.82))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+}
+
+struct AppSplashView: View {
+    var body: some View {
+        ZStack {
+            AppGradientBackground()
+
+            VStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(Color.white.opacity(0.14))
+                        .frame(width: 108, height: 108)
+
+                    Image(systemName: "cube.transparent.fill")
+                        .font(.system(size: 46, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+                .shadow(color: .blue.opacity(0.36), radius: 20, y: 10)
+
+                Text("MineBot")
+                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+
+                Text("Your pocket controller for Minecraft AFK sessions.")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.86))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+
+                ProgressView()
+                    .tint(.white)
+                    .padding(.top, 6)
+            }
+        }
     }
 }
 
