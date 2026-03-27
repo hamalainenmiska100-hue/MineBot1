@@ -3,6 +3,7 @@ package dev.minebot.android
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dev.minebot.android.data.ApiClient
@@ -24,6 +25,10 @@ import java.util.UUID
 import kotlin.math.max
 
 class MineBotViewModel(application: Application) : AndroidViewModel(application) {
+    companion object {
+        private const val TAG = "MineBotViewModel"
+    }
+
     private val api = ApiClient()
     private val storage = AppStorage(application)
     private var token: String? = null
@@ -75,7 +80,10 @@ class MineBotViewModel(application: Application) : AndroidViewModel(application)
                     showSnackbar("Login successful.", SnackbarStyle.SUCCESS)
                     refreshAll()
                 }
-                .onFailure { showSnackbar(it.message ?: "Login failed.", SnackbarStyle.ERROR) }
+                .onFailure {
+                    Log.e(TAG, "Login request failed", it)
+                    showSnackbar(it.message ?: "Login failed.", SnackbarStyle.ERROR)
+                }
         }
     }
 
