@@ -4,6 +4,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.logging.HttpLoggingInterceptor
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
@@ -11,7 +12,13 @@ import java.time.Instant
 class ApiException(message: String) : Exception(message)
 
 class ApiClient {
-    private val client = OkHttpClient.Builder().build()
+    private val client = OkHttpClient.Builder()
+        .addInterceptor(
+            HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BASIC
+            }
+        )
+        .build()
     private val jsonType = "application/json; charset=utf-8".toMediaType()
     private val baseUrl = "https://afkbotb.fly.dev"
     private val announcementsUrl = "https://shrill-lab-a34d.kosonenonpaska.workers.dev"
