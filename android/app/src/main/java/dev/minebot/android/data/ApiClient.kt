@@ -63,8 +63,24 @@ class ApiClient {
     }
 
     fun redeemCode(code: String): String {
-        val data = request("/auth/redeem", "POST", body = JSONObject().put("code", code))
-        return data.optString("token")
+        val payloads = buildList {
+            add(code)
+            val compact = code.replace("-", "").trim()
+            if (compact != code) add(compact)
+        }
+
+        var lastError: Throwable? = null
+        payloads.forEach { value ->
+            runCatching {
+                val data = request("/auth/redeem", "POST", body = JSONObject().put("code", value))
+                val token = data.optString("token").ifBlank { null } ?: data.optString("accessToken").ifBlank { null }
+                if (token.isNullOrBlank()) throw ApiException("Login response did not include a token.")
+                token
+            }.onSuccess { return it }
+                .onFailure { lastError = it }
+        }
+
+        throw (lastError ?: ApiException("Login failed."))
     }
 
     fun fetchAccounts(token: String): Pair<List<LinkedAccount>, PendingLink?> {

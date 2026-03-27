@@ -56,13 +56,16 @@ class MineBotViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun updateCode(input: String) {
-        val clean = input.uppercase().filter { it.isLetterOrDigit() || it == '-' }.take(14)
+        val clean = input.uppercase().filter { it.isLetterOrDigit() || it == '-' }.take(32)
         _uiState.value = _uiState.value.copy(codeInput = clean)
     }
 
     fun login() = viewModelScope.launch {
         val code = _uiState.value.codeInput.trim().uppercase()
-        if (code.length != 14) return@launch showSnackbar("Please enter a valid access code.", SnackbarStyle.ERROR)
+        val compactCode = code.replace("-", "")
+        if (compactCode.length < 10) {
+            return@launch showSnackbar("Please enter a valid access code.", SnackbarStyle.ERROR)
+        }
         withBusy {
             runCatching { api.redeemCode(code) }
                 .onSuccess {
@@ -268,4 +271,3 @@ class MineBotViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 }
-
