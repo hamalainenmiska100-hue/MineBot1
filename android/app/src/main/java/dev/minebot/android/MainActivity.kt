@@ -16,9 +16,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
@@ -34,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -133,11 +136,40 @@ private fun TutorialScreen(onContinue: () -> Unit) {
 
 @Composable
 private fun LoginScreen(state: UiState, onCodeChange: (String) -> Unit, onLogin: () -> Unit) {
-    Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Text("MineBot", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
-        Text("Enter your access code")
-        OutlinedTextField(value = state.codeInput, onValueChange = onCodeChange, label = { Text("XXXX-XXXX-XXXX") }, modifier = Modifier.fillMaxWidth())
-        Button(onClick = onLogin, enabled = !state.isBusy, modifier = Modifier.fillMaxWidth()) { Text(if (state.isBusy) "Loading..." else "Login") }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text("MineBot", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+            Text("Sign in with your access code to control your bot.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+            OutlinedCard(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
+            ) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("Access code", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    OutlinedTextField(
+                        value = state.codeInput,
+                        onValueChange = onCodeChange,
+                        label = { Text("XXXX-XXXX-XXXX") },
+                        supportingText = { Text("Dashes are optional.") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            Button(onClick = onLogin, enabled = !state.isBusy, modifier = Modifier.fillMaxWidth()) {
+                Text(if (state.isBusy) "Signing in..." else "Login")
+            }
+        }
     }
 }
 
