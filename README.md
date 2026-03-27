@@ -1,8 +1,8 @@
-# MineBot iOS source
+# MineBot source
 
-Flat-file SwiftUI source for the MineBot iOS app.
+Flat-file source for the MineBot clients.
 
-## Files
+## iOS files
 - `MineBotApp.swift`
 - `Models.swift`
 - `API.swift`
@@ -19,22 +19,25 @@ Flat-file SwiftUI source for the MineBot iOS app.
 - `SettingsView.swift`
 - `AddServerView.swift`
 
-## How to use
-1. Create a new **iOS App** project in Xcode.
-2. Delete the default Swift files.
-3. Drag all `.swift` files from this zip into your Xcode project target.
-4. Build and run.
+## Android app
+An Android app with the same feature set is included under `android/`.
 
-## Notes
-- API base URL is set in `API.swift`.
-- Token is stored in Keychain.
-- Saved servers are stored in `UserDefaults`.
-- The app is English-only.
-- Designed to fit small displays like iPhone SE 3 by using `ScrollView`, `List`, and flexible layouts.
+### Android features implemented
+- Tutorial/onboarding flow.
+- Access-code login/logout.
+- Bot tab: server selection, connection mode, offline username, Microsoft linking flow, start/stop/reconnect actions.
+- Status tab: session snapshot, uptime, last-connected time, health metrics.
+- Settings tab: add/select/remove servers, Discord link, sign-out.
+- Remote bootstrap support for maintenance and announcements.
+
+### Build Android app
+1. Open the `android/` folder in Android Studio (JDK 17).
+2. Let Gradle sync.
+3. Run the `app` configuration on a device/emulator.
 
 ## Current backend endpoints used
 - `POST /auth/redeem`
-- `GET /auth/me`
+- `POST /auth/logout`
 - `GET /accounts`
 - `POST /accounts/link/start`
 - `GET /accounts/link/status`
@@ -44,3 +47,4 @@ Flat-file SwiftUI source for the MineBot iOS app.
 - `POST /bots/reconnect`
 - `GET /bots`
 - `GET /health`
+- `GET /api/bootstrap` (announcement service)
