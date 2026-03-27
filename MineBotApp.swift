@@ -17,22 +17,32 @@ struct RootView: View {
     @Binding var tutorialSeen: Bool
     @EnvironmentObject var appModel: AppModel
     @Environment(\.scenePhase) private var scenePhase
+    @State private var showSplash = true
 
     var body: some View {
         ZStack(alignment: .bottom) {
+            AppGradientBackground()
+
             Group {
-                if !tutorialSeen {
-                    TutorialView {
-                        tutorialSeen = true
-                    }
-                } else if !appModel.isLoggedIn {
-                    LoginView()
+                if showSplash {
+                    AppSplashView()
+                        .transition(.opacity)
                 } else {
-                    MainTabsView()
+                    Group {
+                        if !tutorialSeen {
+                            TutorialView {
+                                tutorialSeen = true
+                            }
+                        } else if !appModel.isLoggedIn {
+                            LoginView()
+                        } else {
+                            MainTabsView()
+                        }
+                    }
+                    .transition(.opacity)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(.systemBackground))
 
             SnackbarHost()
                 .environmentObject(appModel)
@@ -66,6 +76,12 @@ struct RootView: View {
             }
         }
         .task {
+            if showSplash {
+                try? await Task.sleep(nanoseconds: 1_300_000_000)
+                withAnimation(.easeInOut(duration: 0.35)) {
+                    showSplash = false
+                }
+            }
             await appModel.appDidBecomeActive()
         }
         .onChange(of: scenePhase) { _, newPhase in
@@ -106,6 +122,6 @@ struct MainTabsView: View {
             }
             .tag(AppTab.settings)
         }
-        .tint(.blue)
+        .tint(.cyan)
     }
 }

@@ -3,17 +3,43 @@ import SwiftUI
 struct LoginView: View {
     @EnvironmentObject var appModel: AppModel
     @State private var code = ""
+    @State private var pulse = false
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("MineBot")
-                            .font(.system(size: 34, weight: .bold))
+                        HStack(spacing: 14) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .fill(Color.white.opacity(0.12))
+                                    .frame(width: 64, height: 64)
+
+                                Image(systemName: "lock.shield.fill")
+                                    .font(.title2.weight(.bold))
+                                    .foregroundStyle(.white)
+                                    .scaleEffect(pulse ? 1.05 : 0.95)
+                                    .animation(
+                                        .easeInOut(duration: 1.2).repeatForever(autoreverses: true),
+                                        value: pulse
+                                    )
+                            }
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("MineBot Login")
+                                    .font(.system(size: 30, weight: .bold))
+                                    .foregroundStyle(.white)
+
+                                Text("Secure access in under 10 seconds.")
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(.white.opacity(0.84))
+                            }
+                        }
+
                         Text("Enter your access code")
                             .font(.title3.weight(.semibold))
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.white.opacity(0.88))
                     }
 
                     CardView {
@@ -46,12 +72,27 @@ struct LoginView: View {
                     }
                     .buttonStyle(PrimaryButtonStyle(color: .blue))
                     .disabled(appModel.isBusy)
+
+                    CardView {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Label("New quick tips", systemImage: "sparkles")
+                                .font(.headline)
+
+                            Text("• Paste your code directly.\n• You can switch server after login.\n• Pull down to refresh bot status anytime.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
                 .frame(maxWidth: 500)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 24)
             }
             .navigationBarTitleDisplayMode(.inline)
+            .scrollIndicators(.hidden)
+            .onAppear {
+                pulse = true
+            }
         }
     }
 }
