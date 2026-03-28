@@ -48,3 +48,29 @@ An Android app with the same feature set is included under `android/`.
 - `GET /bots`
 - `GET /health`
 - `GET /api/bootstrap` (announcement service)
+
+## Flutter Web app
+A Flutter Web implementation with the same core feature set as iOS/Android is included under `flutter_web/`.
+
+### Flutter Web features implemented
+- Tutorial/onboarding flow.
+- Access-code login/logout.
+- Bot tab: server selection, connection mode, offline username, Microsoft linking flow, start/stop/reconnect actions.
+- Status tab: session snapshot, uptime, last-connected time, health metrics.
+- Settings tab: add/select/remove servers, Discord link, sign-out.
+- Remote bootstrap support for maintenance and announcements.
+
+### Run locally (web)
+1. Install Flutter stable and run `flutter config --enable-web`.
+2. `cd flutter_web`
+3. `flutter pub get`
+4. `flutter run -d chrome`
+
+### GitHub Pages deployment
+A workflow is configured at `.github/workflows/flutter-web-pages.yml`.
+
+Required one-time repo settings:
+1. In GitHub repository settings, go to **Pages** and set source to **GitHub Actions**.
+2. Keep the default branch trigger (`main`) or edit the workflow as needed.
+
+Then push changes to `main`; the workflow builds `flutter_web` and deploys to Pages.
