@@ -1,0 +1,9 @@
+{
+  "name": "MineBot",
+  "short_name": "MineBot",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#2E7D32",
+  "description": "MineBot Flutter Web client"
+}
