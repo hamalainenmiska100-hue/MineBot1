@@ -9,11 +9,31 @@ struct LoginView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("MineBot")
-                            .font(.system(size: 34, weight: .bold))
-                        Text("Enter your access code")
+                        HStack(spacing: 14) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .fill(Color.white.opacity(0.1))
+                                    .frame(width: 64, height: 64)
+
+                                Image(systemName: "lock.shield.fill")
+                                    .font(.title2.weight(.semibold))
+                                    .foregroundStyle(.white)
+                            }
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Sign in")
+                                    .font(.system(size: 30, weight: .bold))
+                                    .foregroundStyle(.white)
+
+                                Text("Use your access code to continue.")
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(.white.opacity(0.84))
+                            }
+                        }
+
+                        Text("Access code")
                             .font(.title3.weight(.semibold))
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.white.opacity(0.88))
                     }
 
                     CardView {
@@ -52,6 +72,7 @@ struct LoginView: View {
                 .padding(.vertical, 24)
             }
             .navigationBarTitleDisplayMode(.inline)
+            .scrollIndicators(.hidden)
         }
     }
 }

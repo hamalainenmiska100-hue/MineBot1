@@ -1,5 +1,32 @@
 import SwiftUI
 
+struct AppGradientBackground: View {
+    var body: some View {
+        LinearGradient(
+            colors: [
+                Color(red: 0.12, green: 0.15, blue: 0.21),
+                Color(red: 0.11, green: 0.17, blue: 0.28),
+                Color(red: 0.08, green: 0.10, blue: 0.16)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+        .overlay(
+            RadialGradient(
+                colors: [
+                    Color.blue.opacity(0.18),
+                    .clear
+                ],
+                center: .topTrailing,
+                startRadius: 30,
+                endRadius: 340
+            )
+            .ignoresSafeArea()
+        )
+    }
+}
+
 struct CardView<Content: View>: View {
     @ViewBuilder let content: Content
 
@@ -9,8 +36,47 @@ struct CardView<Content: View>: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemBackground))
+        .background(Color(.secondarySystemBackground).opacity(0.82))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+}
+
+struct AppSplashView: View {
+    var body: some View {
+        ZStack {
+            AppGradientBackground()
+
+            VStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(Color.white.opacity(0.12))
+                        .frame(width: 100, height: 100)
+
+                    Image(systemName: "cube.transparent.fill")
+                        .font(.system(size: 40, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+                .shadow(color: .black.opacity(0.18), radius: 14, y: 6)
+
+                Text("MineBot")
+                    .font(.system(size: 38, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+
+                Text("Loading control panel…")
+                    .font(.subheadline.weight(.regular))
+                    .foregroundStyle(.white.opacity(0.78))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+
+                ProgressView()
+                    .tint(.white)
+                    .padding(.top, 6)
+            }
+        }
     }
 }
 
