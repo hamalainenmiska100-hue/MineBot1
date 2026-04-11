@@ -1,53 +1,26 @@
-name: Build MineBot IPA
+name: Build
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: ["**"]
+  pull_request:
 
 jobs:
-  build:
+  ios-build:
+    name: iOS Build
     runs-on: macos-14
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Show environment
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Build app
         run: |
-          pwd
-          ls -la
-          xcodebuild -version
-
-      - name: Compile app binary
-        run: |
-          SDK=$(xcrun --sdk iphoneos --show-sdk-path)
-          FILES=$(find . -maxdepth 1 -name '*.swift' ! -name 'Package.swift' ! -name 'main.swift' -print | sort)
-          echo "$FILES"
-
-          xcrun swiftc \
-            -target arm64-apple-ios17.0 \
-            -sdk "$SDK" \
-            -framework SwiftUI \
-            -framework UIKit \
-            -parse-as-library \
-            $FILES \
-            -o MineBot
-
-          chmod +x MineBot
-          file MineBot || true
-
-      - name: Create app bundle
-        run: |
-          mkdir -p Payload/MineBot.app
-          cp MineBot Payload/MineBot.app/
-          cp Info.plist Payload/MineBot.app/
-          ls -la Payload/MineBot.app
-
-      - name: Package IPA
-        run: |
-          /usr/bin/zip -r MineBot.ipa Payload
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: MineBot-IPA
-          path: MineBot.ipa
+          xcodebuild \
+            -project MineBot.xcodeproj \
+            -scheme MineBot \
+            -destination "generic/platform=iOS" \
+            CODE_SIGNING_ALLOWED=NO \
+            build

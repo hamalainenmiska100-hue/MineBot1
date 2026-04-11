@@ -18,6 +18,7 @@ struct RootView: View {
     @EnvironmentObject var appModel: AppModel
     @Environment(\.scenePhase) private var scenePhase
     @State private var showSplash = true
+    @AppStorage("preferredAppearance") private var preferredAppearance = "system"
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -89,6 +90,18 @@ struct RootView: View {
             Task {
                 await appModel.appDidBecomeActive()
             }
+        }
+        .preferredColorScheme(preferredColorScheme)
+    }
+
+    private var preferredColorScheme: ColorScheme? {
+        switch preferredAppearance {
+        case "light":
+            return .light
+        case "dark":
+            return .dark
+        default:
+            return nil
         }
     }
 }

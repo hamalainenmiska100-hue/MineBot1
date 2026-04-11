@@ -10,6 +10,9 @@ final class APIClient {
 
     private init() {}
 
+    var debugBaseURL: String { baseURL }
+    var debugAnnouncementsURL: String { announcementsURL }
+
     private func request<T: Decodable>(
         path: String,
         method: String = "GET",
