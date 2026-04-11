@@ -4,6 +4,12 @@ struct SettingsView: View {
     @EnvironmentObject var appModel: AppModel
     @State private var showingAddServer = false
     @State private var easterEggTapCount = 0
+    @AppStorage("preferredAppearance") private var preferredAppearance = "system"
+    @AppStorage("useComfortPalette") private var useComfortPalette = true
+    @AppStorage("largeTouchTargets") private var largeTouchTargets = true
+    @AppStorage("enableDeveloperMode") private var enableDeveloperMode = false
+    @AppStorage("showDebugSnapshot") private var showDebugSnapshot = false
+    @AppStorage("verboseAPIEvents") private var verboseAPIEvents = false
 
     private let botFacts = [
         "AFK lore: jumping occasionally reduces idle kicks on some servers.",
@@ -16,9 +22,11 @@ struct SettingsView: View {
         ScrollView {
             VStack(spacing: 14) {
                 accountCard
+                appearanceCard
                 serverCard
                 communityCard
                 appInfoCard
+                developerCard
                 sessionCard
             }
             .frame(maxWidth: 540)
@@ -114,6 +122,29 @@ struct SettingsView: View {
         }
     }
 
+    private var appearanceCard: some View {
+        CardView {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("Comfort")
+                    .font(.headline)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Appearance")
+                        .font(.subheadline.weight(.semibold))
+                    Picker("Appearance", selection: $preferredAppearance) {
+                        Text("System").tag("system")
+                        Text("Light").tag("light")
+                        Text("Dark").tag("dark")
+                    }
+                    .pickerStyle(.segmented)
+                }
+
+                Toggle("Softer background palette", isOn: $useComfortPalette)
+                Toggle("Larger touch targets", isOn: $largeTouchTargets)
+            }
+        }
+    }
+
     private var communityCard: some View {
         CardView {
             VStack(alignment: .leading, spacing: 14) {
@@ -159,6 +190,50 @@ struct SettingsView: View {
                     }
                 }
                 .buttonStyle(SecondaryButtonStyle(color: .orange))
+            }
+        }
+    }
+
+    private var developerCard: some View {
+        CardView {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                    Text("Developer Settings")
+                        .font(.headline)
+                    Spacer()
+                    if enableDeveloperMode {
+                        Text("ON")
+                            .font(.caption.weight(.semibold))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.green.opacity(0.2))
+                            .clipShape(Capsule())
+                    }
+                }
+
+                Toggle("Enable developer mode", isOn: $enableDeveloperMode)
+
+                if enableDeveloperMode {
+                    Toggle("Show debug snapshot", isOn: $showDebugSnapshot)
+                    Toggle("Verbose API events", isOn: $verboseAPIEvents)
+
+                    if showDebugSnapshot {
+                        VStack(alignment: .leading, spacing: 8) {
+                            MetricRow(title: "API", value: APIClient.shared.debugBaseURL)
+                            MetricRow(title: "Announcements", value: APIClient.shared.debugAnnouncementsURL)
+                            MetricRow(title: "Servers Saved", value: "\(appModel.servers.count)")
+                            MetricRow(title: "Selected Server", value: appModel.selectedServer?.label ?? "-")
+                            MetricRow(title: "Connection Type", value: appModel.connectionType.title)
+                        }
+                        .padding(10)
+                        .background(Color.white.opacity(0.04))
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    }
+                } else {
+                    Text("Enable this to reveal runtime diagnostics and advanced toggles.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
     }

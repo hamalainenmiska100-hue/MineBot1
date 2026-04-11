@@ -1,12 +1,20 @@
 import SwiftUI
 
 struct AppGradientBackground: View {
+    @AppStorage("useComfortPalette") private var useComfortPalette = true
+
     var body: some View {
         LinearGradient(
             colors: [
-                Color(red: 0.08, green: 0.13, blue: 0.27),
-                Color(red: 0.10, green: 0.20, blue: 0.42),
-                Color(red: 0.05, green: 0.08, blue: 0.15)
+                useComfortPalette
+                    ? Color(red: 0.11, green: 0.16, blue: 0.30)
+                    : Color(red: 0.08, green: 0.13, blue: 0.27),
+                useComfortPalette
+                    ? Color(red: 0.13, green: 0.24, blue: 0.46)
+                    : Color(red: 0.10, green: 0.20, blue: 0.42),
+                useComfortPalette
+                    ? Color(red: 0.08, green: 0.11, blue: 0.20)
+                    : Color(red: 0.05, green: 0.08, blue: 0.15)
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
@@ -29,14 +37,15 @@ struct AppGradientBackground: View {
 
 struct CardView<Content: View>: View {
     @ViewBuilder let content: Content
+    @AppStorage("largeTouchTargets") private var largeTouchTargets = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             content
         }
-        .padding(18)
+        .padding(largeTouchTargets ? 20 : 18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemBackground).opacity(0.82))
+        .background(Color(.secondarySystemBackground).opacity(0.9))
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
@@ -82,13 +91,14 @@ struct AppSplashView: View {
 
 struct PrimaryButtonStyle: ButtonStyle {
     let color: Color
+    @AppStorage("largeTouchTargets") private var largeTouchTargets = true
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.headline)
             .foregroundStyle(.white)
             .padding(.horizontal, 16)
-            .padding(.vertical, 16)
+            .padding(.vertical, largeTouchTargets ? 18 : 16)
             .frame(maxWidth: .infinity)
             .background(color.opacity(configuration.isPressed ? 0.8 : 1.0))
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -99,13 +109,14 @@ struct PrimaryButtonStyle: ButtonStyle {
 
 struct SecondaryButtonStyle: ButtonStyle {
     let color: Color
+    @AppStorage("largeTouchTargets") private var largeTouchTargets = true
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.headline)
             .foregroundStyle(color)
             .padding(.horizontal, 16)
-            .padding(.vertical, 16)
+            .padding(.vertical, largeTouchTargets ? 18 : 16)
             .frame(maxWidth: .infinity)
             .background(color.opacity(configuration.isPressed ? 0.12 : 0.08))
             .overlay(
